@@ -1,0 +1,17 @@
+html, body {
+	margin: 0; padding: 0;
+	overflow: hidden;
+	height: 100%;
+}
+
+canvas {
+	display: block;
+	margin: 40px auto;
+}
+
+#mass-display {
+	margin: 10px;
+	left: 60px;
+	top: 60px;
+	position: absolute;
+}
