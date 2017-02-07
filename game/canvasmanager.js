@@ -29,7 +29,7 @@ function initCanvas( self, frameRate=24, w=1000, h=900 ) {
 			var velDir = VectorPolar.ToRectangular( new VectorPolar( polarOffset.theta + Math.PI/2, 1 ) );
 			particles.AddParticle( new Particle(
 				newPos,
-				Vector.Mul( velDir, gravityConstant * Math.sqrt( polarOffset.distance ) ),
+				Vector.Mul( velDir, gravityConstant * Math.cbrt( polarOffset.distance ) ),
 				mass
 			) );
 		}
