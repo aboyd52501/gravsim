@@ -1,7 +1,5 @@
 function initCanvas( self, frameRate=24, w=1000, h=900 ) {
 	
-	console.log( self );
-	
 	var canvas = document.getElementById("gravity-sim");
 	var context = canvas.getContext("2d");
 	context.width = w; context.height = h;
@@ -103,10 +101,10 @@ function initCanvas( self, frameRate=24, w=1000, h=900 ) {
 		mouseX = mouse.offsetX; mouseY = mouse.offsetY;
 	} );
 	
-	/* fillScreen( 128,
-	function( x ) { return new Vector( Math.random()*30-15, Math.random()*30-15 ); },
-	function( x ) { return Math.random()*1000; }
-	); */
+	fillScreen( 128,
+		function( x ) { return new Vector( Math.random()*30-15, Math.random()*30-15 ); },
+		function( x ) { return Math.random()*1000; }
+	);
 	
 	setInterval( Draw, 1000/frameRate );
 	
