@@ -1,9 +1,9 @@
-function initCanvas( self, frameRate=24, w=1000, h=900 ) {
+function initCanvas( self, frameRate=60 ) {
+	
+	var w; var h;
 	
 	var canvas = document.getElementById("gravity-sim");
 	var context = canvas.getContext("2d");
-	context.width = w; context.height = h;
-	canvas.width = w; canvas.height = h;
 	
 	var viewOffset = new Vector();
 	var viewZoom = 1;
@@ -35,27 +35,31 @@ function initCanvas( self, frameRate=24, w=1000, h=900 ) {
 	
 	function fillScreen( amount, velfxn, massfxn ) {
 		for( var i = 0; i < amount; i++ ) {
+			var pos = new VectorPolar( Math.PI*2*Math.random(), ( Math.random()**1 )*1000 );
 			particles.AddParticle( new Particle(
-				new Vector( Math.random()*w, Math.random() * h ),
-				velfxn( i ),
-				massfxn( i )
+				pos,
+				Vector.Rotate( Vector.Mul(pos, 1/100), Math.PI/4 ),
+				Math.random()*400
 			) );
 		}
 	}
 	
-	function ScreenToWorld( vec ) {
-		var mid = new Vector( w/2, h/2 );
-		var rel = Vector.Sub( mid, vec );
-		var world = Vector.Add( Vector.Div( rel, viewZoom ), viewOffset );
-		return world;
-	}
-	
-	function Draw() {
+	function Tick() {
+		
 		viewOffset = particles.massCenter;
 		context.clearRect( 0, 0, w, h );
-		context.fillStyle="black"; context.fillRect( 0, 0, w, h );
+		//context.fillStyle="black"; context.fillRect( 0, 0, w, h );
+		
+		context.save();
+		context.translate(w/2, h/2);
+		context.scale(viewZoom, viewZoom);
+		context.translate(-viewOffset.x, -viewOffset.y);
+		
 		particles.StepParticles( gravityConstant, timeStep );
-		particles.DrawParticles( context, viewOffset, viewZoom );
+		particles.DrawParticles( context );
+		
+		// new body indicator
+		context.restore()
 		if( mouseDown ) {
 			context.beginPath();
 			context.moveTo( pPos.x, pPos.y );
@@ -63,7 +67,10 @@ function initCanvas( self, frameRate=24, w=1000, h=900 ) {
 			context.strokeStyle = "#FFFFFF";
 			context.stroke();
 		};
-		$("#mass-display")[0].innerHTML = "Mass: " + Math.round(mass*10)/10;
+		
+		// canvas outline
+		context.rect(0,0,w,h);
+		context.stroke();
 	}
 	
 	$(document).keypress( function( key ) {
@@ -75,12 +82,24 @@ function initCanvas( self, frameRate=24, w=1000, h=900 ) {
 		if( key === 54 ) { mass /= Math.sqrt(2); }
 		if( key === 32 ) {
 			disk(
-				ScreenToWorld( new Vector( mouseX, mouseY ) ),
+				new Vector( mouseX, mouseY ),
 				128*Math.cbrt(mass), 64
 			); }
 	} );
 	
-	$("#gravity-sim").click( function( click ) {
+	// fit the canvas to the window
+	$( window ).resize( function() {
+		// Resize canvas
+		w = window.innerWidth;
+		h = window.innerHeight;
+		canvas.width = w;
+		canvas.height = h;
+	});
+	// we need to actually set the canvas size though at first 
+	$(window).resize();
+	
+	// TODO: implement functions for tracking canvas transformations and doing them forward and backward on other vectors.
+	/* $("#gravity-sim").click( function( click ) {
 		var newPos = ScreenToWorld( new Vector( click.offsetX, click.offsetY ) );
 		var oldPos = ScreenToWorld( pPos );
 		var pVel = Vector.Sub( newPos, oldPos );
@@ -95,18 +114,15 @@ function initCanvas( self, frameRate=24, w=1000, h=900 ) {
 	$("#gravity-sim").mousedown( function( mouse ) {
 		mouseDown = true;
 		pPos = new Vector( mouse.offsetX, mouse.offsetY );
-	} );
+	} ); */
 	
 	$("#gravity-sim").mousemove( function( mouse ) {
 		mouseX = mouse.offsetX; mouseY = mouse.offsetY;
 	} );
 	
-	fillScreen( 128,
-		function( x ) { return new Vector( Math.random()*30-15, Math.random()*30-15 ); },
-		function( x ) { return Math.random()*1000; }
-	);
+	fillScreen( 512 );
 	
-	setInterval( Draw, 1000/frameRate );
+	setInterval( Tick, 1000/frameRate );
 	
 }
 

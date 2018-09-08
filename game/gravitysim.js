@@ -7,19 +7,17 @@ class Particle {
 		this.color = new ColorHSL();
 	}
 	get radius() {
-		return Math.pow( this.mass, 1/3 );
+		return Math.cbrt( this.mass );
 	}
-	Draw( ctx, offset, zoom ) {
-		var midVec = new Vector( ctx.width/2, ctx.height/2 );
-		var view = Vector.Mul( Vector.Sub( offset, this.position ), zoom );
-		view = Vector.Add( view, midVec );
+	Draw( ctx ) {
+		// must be translated and scaled appropriately
 		ctx.beginPath();
 		ctx.arc(
-			view.x,
-			view.y,
-			this.radius * zoom, 0, 2*Math.PI
+			this.position.x,
+			this.position.y,
+			this.radius, 0, 2*Math.PI
 		);
-		ctx.fillStyle = ColorHSL.toString( this.color );
+		ctx.fillStyle = this.color.string;
 		ctx.fill();
 		//ctx.stroke();
 	}
@@ -100,9 +98,9 @@ class ParticlePopulation {
 			particle.PhysicsStep( timeMul );
 		} );
 	}
-	DrawParticles( ctx, offset, zoom ) {
+	DrawParticles( ctx ) {
 		this.Population.forEach( function( particle ) {
-			particle.Draw( ctx, offset, zoom );
+			particle.Draw( ctx );
 		} );
 	}
 	get totalMass() {
